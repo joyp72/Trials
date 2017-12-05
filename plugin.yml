@@ -1,0 +1,9 @@
+name: Trials
+author: likeapig
+version: 0.0.1
+main: com.likeapig.trials.Main
+depend: [ProjectKorra, Parties]
+
+commands:
+  tra:
+    description: Main command for Trials.
