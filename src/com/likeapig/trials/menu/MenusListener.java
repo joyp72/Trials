@@ -85,6 +85,22 @@ public class MenusListener implements Listener {
 								MessageManager.get().message(p, "Map is being used!", MessageType.BAD);
 								return;
 							}
+							if (!p.isOp()) {
+								for (Player a : m2.getAPlayers()) {
+									if (p.getAddress().getAddress().equals(a.getAddress().getAddress())) {
+										MessageManager.get().message(p,
+												"Someone with the same ip is already in the game!", MessageType.BAD);
+										return;
+									}
+								}
+								for (Player b : m2.getBPlayers()) {
+									if (p.getAddress().getAddress().equals(b.getAddress().getAddress())) {
+										MessageManager.get().message(p,
+												"Someone with the same ip is already in the game!", MessageType.BAD);
+										return;
+									}
+								}
+							}
 							if (api.haveParty(p.getUniqueId())) {
 								String party = api.getPartyName(p.getUniqueId());
 								if (api.getPartyLeader(party) == p.getUniqueId()) {
@@ -127,6 +143,22 @@ public class MenusListener implements Listener {
 							if (m2.isStarted()) {
 								MessageManager.get().message(p, "Map is being used!", MessageType.BAD);
 								return;
+							}
+							if (!p.isOp()) {
+								for (Player a : m2.getAPlayers()) {
+									if (p.getAddress().getAddress().equals(a.getAddress().getAddress())) {
+										MessageManager.get().message(p,
+												"Someone with the same ip is already in the game!", MessageType.BAD);
+										return;
+									}
+								}
+								for (Player b : m2.getBPlayers()) {
+									if (p.getAddress().getAddress().equals(b.getAddress().getAddress())) {
+										MessageManager.get().message(p,
+												"Someone with the same ip is already in the game!", MessageType.BAD);
+										return;
+									}
+								}
 							}
 							if (api.haveParty(p.getUniqueId())) {
 								String party = api.getPartyName(p.getUniqueId());

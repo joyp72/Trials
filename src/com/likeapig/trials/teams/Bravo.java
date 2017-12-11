@@ -111,6 +111,17 @@ public class Bravo {
 	}
 	
 	public void setDead(boolean b) {
+		if (b == true) {
+			if (map.getBPlayers().size() > 1) {
+				if (getPlayer().getGameMode() == GameMode.SPECTATOR) {
+					for (Player p : map.getBPlayers()) {
+						if (p != getPlayer()) {
+							getPlayer().setSpectatorTarget(p);
+						}
+					}
+				}
+			}
+		}
 		isDead = b;
 	}
 	

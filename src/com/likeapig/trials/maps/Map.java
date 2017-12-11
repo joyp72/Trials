@@ -96,7 +96,7 @@ public class Map {
 	public void addVotes(Player p) {
 		votes++;
 		voted.add(p);
-		if (votes >= 4) {
+		if (votes >= 2) {
 			start();
 		}
 	}
@@ -499,77 +499,103 @@ public class Map {
 	public void handleRevive(PlayerToggleSneakEvent e) {
 		Player p = e.getPlayer();
 		Map m = MapManager.get().getMap(p);
-		Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.get(), new Runnable() {
-			int i = 6;
-
-			@Override
-			public void run() {
-				if (isStarted()) {
-					if (containsAPlayer(p)) {
-						if (p.isSneaking()) {
-							i--;
-							for (Alpha a : alpha) {
-								if (a.isDead()) {
-									Location l = a.getDeathLoc();
-									if (p.getLocation().distance(l) <= 1 && !getAlpha(p).isDead()) {
-										Titles.get().addTitle(p, ChatColor.GREEN + "Reviving..");
-										Titles.get().addSubTitle(p, String.valueOf(i));
-										Titles.get().addTitle(a.getPlayer(),
-												ChatColor.GREEN + "You are being revived..");
-										Titles.get().addSubTitle(a.getPlayer(), String.valueOf(i));
-										if (i <= 0) {
-											a.ready();
-											a.setDead(false);
-											a.getPlayer().teleport(l);
-											a.removeDeathCircle();
-											onARemoveDeath(a.getPlayer());
-											updateBoard();
-											Titles.get().addTitle(p, " ");
-											Titles.get().addSubTitle(p, ChatColor.GREEN + "Revived " + ChatColor.WHITE
-													+ a.getPlayer().getName());
-											return;
-										}
-									}
-								}
+		if (isStarted()) {
+			if (getADead().contains(p)) {
+				if (getAPlayers().size() > 1) {
+					if (p.getGameMode() == GameMode.SPECTATOR) {
+						for (Player ap : getAPlayers()) {
+							if (p != ap) {
+								e.setCancelled(true);
+								p.setSpectatorTarget(ap);
 							}
-						} else {
-							i = 6;
-						}
-					}
-					if (containsBPlayer(p)) {
-						if (p.isSneaking()) {
-							i--;
-							for (Bravo b : bravo) {
-								if (b.isDead()) {
-									Location l = b.getDeathLoc();
-									if (p.getLocation().distance(l) <= 1 && !getBravo(p).isDead()) {
-										Titles.get().addTitle(p, ChatColor.GREEN + "Reviving..");
-										Titles.get().addSubTitle(p, String.valueOf(i));
-										Titles.get().addTitle(b.getPlayer(),
-												ChatColor.GREEN + "You are being revived..");
-										Titles.get().addSubTitle(b.getPlayer(), String.valueOf(i));
-										if (i <= 0) {
-											b.ready();
-											b.setDead(false);
-											b.getPlayer().teleport(l);
-											b.removeDeathCircle();
-											onBRemoveDeath(b.getPlayer());
-											updateBoard();
-											Titles.get().addTitle(p, " ");
-											Titles.get().addSubTitle(p, ChatColor.GREEN + "Revived " + ChatColor.WHITE
-													+ b.getPlayer().getName());
-											return;
-										}
-									}
-								}
-							}
-						} else {
-							i = 6;
 						}
 					}
 				}
 			}
-		}, 0L, 20L);
+			if (getBDead().contains(p)) {
+				if (getBPlayers().size() > 1) {
+					if (p.getGameMode() == GameMode.SPECTATOR) {
+						for (Player bp : getBPlayers()) {
+							if (p != bp) {
+								e.setCancelled(true);
+								p.setSpectatorTarget(bp);
+							}
+						}
+					}
+				}
+			}
+			Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.get(), new Runnable() {
+				int i = 4;
+
+				@Override
+				public void run() {
+					if (isStarted()) {
+						if (containsAPlayer(p)) {
+							if (p.isSneaking()) {
+								i--;
+								for (Alpha a : alpha) {
+									if (a.isDead()) {
+										Location l = a.getDeathLoc();
+										if (p.getLocation().distance(l) <= 1 && !getAlpha(p).isDead()) {
+											Titles.get().addTitle(p, ChatColor.GREEN + "Reviving..");
+											Titles.get().addSubTitle(p, String.valueOf(i));
+											Titles.get().addTitle(a.getPlayer(),
+													ChatColor.GREEN + "You are being revived..");
+											Titles.get().addSubTitle(a.getPlayer(), String.valueOf(i));
+											if (i <= 0) {
+												a.ready();
+												a.setDead(false);
+												a.getPlayer().teleport(l);
+												a.removeDeathCircle();
+												onARemoveDeath(a.getPlayer());
+												updateBoard();
+												Titles.get().addTitle(p, " ");
+												Titles.get().addSubTitle(p, ChatColor.GREEN + "Revived "
+														+ ChatColor.WHITE + a.getPlayer().getName());
+												return;
+											}
+										}
+									}
+								}
+							} else {
+								i = 4;
+							}
+						}
+						if (containsBPlayer(p)) {
+							if (p.isSneaking()) {
+								i--;
+								for (Bravo b : bravo) {
+									if (b.isDead()) {
+										Location l = b.getDeathLoc();
+										if (p.getLocation().distance(l) <= 1 && !getBravo(p).isDead()) {
+											Titles.get().addTitle(p, ChatColor.GREEN + "Reviving..");
+											Titles.get().addSubTitle(p, String.valueOf(i));
+											Titles.get().addTitle(b.getPlayer(),
+													ChatColor.GREEN + "You are being revived..");
+											Titles.get().addSubTitle(b.getPlayer(), String.valueOf(i));
+											if (i <= 0) {
+												b.ready();
+												b.setDead(false);
+												b.getPlayer().teleport(l);
+												b.removeDeathCircle();
+												onBRemoveDeath(b.getPlayer());
+												updateBoard();
+												Titles.get().addTitle(p, " ");
+												Titles.get().addSubTitle(p, ChatColor.GREEN + "Revived "
+														+ ChatColor.WHITE + b.getPlayer().getName());
+												return;
+											}
+										}
+									}
+								}
+							} else {
+								i = 4;
+							}
+						}
+					}
+				}
+			}, 0L, 20L);
+		}
 	}
 
 	public void handleRespawn(PlayerRespawnEvent e) {
@@ -992,8 +1018,8 @@ public class Map {
 			alpha.add(a);
 			p.teleport(aLoc);
 			updateBoard();
-			message(ChatColor.GREEN + p.getName() + " joined the Map.");
-			MessageManager.get().message(p, "You joined Alpha team.");
+			message(ChatColor.GREEN + p.getName() + " joined the game.");
+			MessageManager.get().message(p, "Vote to start the game using /tra s.");
 			if (state.equals(MapState.WAITING) && (getNumberOfBPlayers() + getNumberOfAPlayers()) == 4) {
 				start();
 			}
@@ -1007,7 +1033,7 @@ public class Map {
 			p.teleport(bLoc);
 			updateBoard();
 			message(ChatColor.GREEN + p.getName() + " joined the game.");
-			MessageManager.get().message(p, "You joined Bravo team.");
+			MessageManager.get().message(p, "Vote to start the game using /tra s.");
 			if (state.equals(MapState.WAITING) && (getNumberOfBPlayers() + getNumberOfAPlayers()) == 4) {
 				start();
 			}

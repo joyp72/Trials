@@ -1,6 +1,6 @@
 name: Trials
 author: likeapig
-version: 0.0.1
+version: 1.0.0
 main: com.likeapig.trials.Main
 depend: [ProjectKorra, Parties]
 

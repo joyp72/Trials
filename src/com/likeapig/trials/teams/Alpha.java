@@ -97,11 +97,11 @@ public class Alpha {
 	public Location getDeathLoc() {
 		return deathLoc;
 	}
-	
+
 	public int getCDStage() {
 		return cdStage;
 	}
-	
+
 	public void setCDStage(int i) {
 		cdStage = i;
 	}
@@ -111,19 +111,30 @@ public class Alpha {
 	}
 
 	public void setDead(boolean b) {
+		if (b == true) {
+			if (map.getAPlayers().size() > 1) {
+				if (getPlayer().getGameMode() == GameMode.SPECTATOR) {
+					for (Player p : map.getAPlayers()) {
+						if (p != getPlayer()) {
+							getPlayer().setSpectatorTarget(p);
+						}
+					}
+				}
+			}
+		}
 		isDead = b;
 	}
 
 	public void addNameTag(Location loc) {
 		Location l = loc.clone();
-		
+
 		ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
 		{
 			SkullMeta hmeta = (SkullMeta) head.getItemMeta();
 			hmeta.setOwner(getPlayer().getName());
 			head.setItemMeta(hmeta);
 		}
-		
+
 		AS = l.getWorld().spawn(loc, ArmorStand.class);
 		AS.setGravity(true);
 		AS.setCollidable(false);
@@ -138,7 +149,7 @@ public class Alpha {
 		AS.setSmall(true);
 		AS.setAI(false);
 	}
-	
+
 	public void removeNameTag() {
 		if (AS != null) {
 			AS.remove();
@@ -146,7 +157,7 @@ public class Alpha {
 	}
 
 	public void playDeathCircle(Location loc) {
-		
+
 		addNameTag(loc);
 		pe1 = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.get(), new Runnable() {
 
@@ -157,11 +168,12 @@ public class Alpha {
 
 			@Override
 			public void run() {
-				
-				if (AS.getLocation().getX() != loc.getX() || AS.getLocation().getY() != loc.getY() || AS.getLocation().getZ() != loc.getZ()) {
+
+				if (AS.getLocation().getX() != loc.getX() || AS.getLocation().getY() != loc.getY()
+						|| AS.getLocation().getZ() != loc.getZ()) {
 					AS.teleport(loc);
 				}
-				
+
 				final ArrayList<Location> locs = getCircle(l, 1, 75);
 				final ArrayList<Location> locs2 = getCircleReverse(l, 1, 75);
 				final float speed = 0.1f;
