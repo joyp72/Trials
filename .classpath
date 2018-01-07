@@ -9,5 +9,7 @@
 	<classpathentry kind="lib" path="C:/Users/kokpa/Documents/spigot.jar"/>
 	<classpathentry kind="lib" path="C:/Users/kokpa/Documents/ProjectKorra-1.8.6.jar"/>
 	<classpathentry kind="lib" path="C:/Users/kokpa/Documents/Parties-2.0.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/kokpa/Documents/worldguard-6.2.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/kokpa/Documents/worldedit-bukkit-6.1.7.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

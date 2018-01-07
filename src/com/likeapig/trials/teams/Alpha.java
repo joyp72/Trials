@@ -111,17 +111,6 @@ public class Alpha {
 	}
 
 	public void setDead(boolean b) {
-		if (b == true) {
-			if (map.getAPlayers().size() > 1) {
-				if (getPlayer().getGameMode() == GameMode.SPECTATOR) {
-					for (Player p : map.getAPlayers()) {
-						if (p != getPlayer()) {
-							getPlayer().setSpectatorTarget(p);
-						}
-					}
-				}
-			}
-		}
 		isDead = b;
 	}
 

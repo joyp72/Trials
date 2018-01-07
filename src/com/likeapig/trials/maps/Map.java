@@ -32,6 +32,10 @@ import com.likeapig.trials.teams.Bravo;
 import com.likeapig.trials.utils.LocationUtils;
 import com.projectkorra.projectkorra.BendingPlayer;
 import com.projectkorra.projectkorra.Element;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -64,6 +68,7 @@ public class Map {
 	public ArmorStand BAS;
 	public ArmorStand AS;
 	private boolean isEnabled;
+	private boolean down;
 
 	public Map(String n) {
 		name = n;
@@ -74,6 +79,7 @@ public class Map {
 		c3 = 0;
 		votes = 0;
 		isEnabled = false;
+		down = false;
 		zone = false;
 		aClaiming = false;
 		bClaiming = false;
@@ -305,6 +311,7 @@ public class Map {
 		}
 		if (arg.equalsIgnoreCase("bwins")) {
 			c2 = timer;
+			down = true;
 			for (Player bp : getBPlayers()) {
 				Titles.get().addTitle(bp, ChatColor.WHITE + "" + ChatColor.BOLD + "0:0" + c2);
 				Titles.get().addSubTitle(bp, ChatColor.WHITE + "All enemies down!");
@@ -316,6 +323,7 @@ public class Map {
 		}
 		if (arg.equalsIgnoreCase("awins")) {
 			c3 = timer;
+			down = true;
 			for (Player ap : getAPlayers()) {
 				Titles.get().addTitle(ap, ChatColor.WHITE + "" + ChatColor.BOLD + "0:0" + c3);
 				Titles.get().addSubTitle(ap, ChatColor.WHITE + "All enemies down");
@@ -330,14 +338,16 @@ public class Map {
 	public void onTimerEnd(String arg) {
 		if (arg.equalsIgnoreCase("endround")) {
 			if (isStarted()) {
-				addZone();
-				for (Player ap : getAPlayers()) {
-					Titles.get().addTitle(ap, ChatColor.WHITE + "Claim the Zone!");
-					Titles.get().addSubTitle(ap, " ");
-				}
-				for (Player bp : getBPlayers()) {
-					Titles.get().addTitle(bp, ChatColor.WHITE + "Claim the Zone!");
-					Titles.get().addSubTitle(bp, " ");
+				if (!down) {
+					addZone();
+					for (Player ap : getAPlayers()) {
+						Titles.get().addTitle(ap, ChatColor.WHITE + "Claim the Zone!");
+						Titles.get().addSubTitle(ap, " ");
+					}
+					for (Player bp : getBPlayers()) {
+						Titles.get().addTitle(bp, ChatColor.WHITE + "Claim the Zone!");
+						Titles.get().addSubTitle(bp, " ");
+					}
 				}
 			}
 		}
@@ -545,6 +555,7 @@ public class Map {
 											if (i <= 0) {
 												a.ready();
 												a.setDead(false);
+												a.getPlayer().setGameMode(GameMode.SURVIVAL);
 												a.getPlayer().teleport(l);
 												a.removeDeathCircle();
 												onARemoveDeath(a.getPlayer());
@@ -576,6 +587,7 @@ public class Map {
 											if (i <= 0) {
 												b.ready();
 												b.setDead(false);
+												b.getPlayer().setGameMode(GameMode.SURVIVAL);
 												b.getPlayer().teleport(l);
 												b.removeDeathCircle();
 												onBRemoveDeath(b.getPlayer());
@@ -706,30 +718,27 @@ public class Map {
 	public void handlePlayerMove(PlayerMoveEvent e) {
 		Player p = e.getPlayer();
 		Map m = MapManager.get().getMap(p);
-		Location from = e.getFrom();
-		Location to = e.getTo();
 		if (m != null) {
-			if (isStarted()) {
+			if (!getRegion(p)) {
 				if (containsAPlayer(p)) {
-					Alpha a = getAlpha(p);
-					Location l = a.getDeathLoc();
-					if (a.isDead()) {
-						if (to.getX() != from.getX() || to.getY() != from.getY() || to.getZ() != from.getZ()) {
-							p.teleport(from);
-						}
-					}
-				}
-				if (containsBPlayer(p)) {
-					Bravo b = getBravo(p);
-					Location l = b.getDeathLoc();
-					if (b.isDead()) {
-						if (to.getX() != from.getX() || to.getY() != from.getY() || to.getZ() != from.getZ()) {
-							p.teleport(from);
-						}
-					}
+					p.teleport(aLoc);
+				} else if (containsBPlayer(p)) {
+					p.teleport(bLoc);
 				}
 			}
 		}
+	}
+
+	public boolean getRegion(Player p) {
+		WorldGuardPlugin wgp = WorldGuardPlugin.inst();
+		RegionManager regionManager = wgp.getRegionManager(p.getWorld());
+		ApplicableRegionSet set = regionManager.getApplicableRegions(p.getLocation());
+		for (ProtectedRegion region : set) {
+			if (region.getId().equalsIgnoreCase("trials")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void registerSign(final Location loc) {
@@ -807,6 +816,7 @@ public class Map {
 		List<Alpha> aWinners = new ArrayList<Alpha>();
 		List<Bravo> bWinners = new ArrayList<Bravo>();
 		boolean flag = aWins + bWins == 0;
+		down = false;
 		if (aWins >= 5 || bWins >= 5) {
 			if (aWins >= 5) {
 				for (Alpha a : alpha) {
